@@ -4,6 +4,47 @@ class ActivitiesController < ApplicationController
   # GET /activities or /activities.json
   def index
     @activities = Activity.all.order(:start_date)
+
+    if params[:filters].present? && params[:group_operator].present?
+      filters = params[:filters]
+      group_operator = params[:group_operator] # "and" ou "or"
+
+      group_relations = []
+
+      filters.each_value do |group|
+        group_operator_within = group["operator"] || "and"
+        conditions = group["conditions"] || {}
+
+        group_scope = nil
+
+        conditions.each_value do |condition|
+          field = condition["field"]
+          value = condition["value"]
+
+          next if field.blank? || value.blank?
+          next unless Activity.column_names.include?(field)
+
+          condition_scope = Activity.where("lower(#{field}) LIKE ?", "%#{value.downcase}%")
+
+          group_scope = if group_scope.nil?
+            condition_scope
+          else
+            group_operator_within == "or" ? group_scope.or(condition_scope) : group_scope.merge(condition_scope)
+          end
+        end
+
+        group_relations << group_scope if group_scope.present?
+      end
+
+      if group_relations.any?
+        final_scope = group_relations.shift
+        group_relations.each do |scope|
+          final_scope = group_operator == "or" ? final_scope.or(scope) : final_scope.merge(scope)
+        end
+
+        @activities = final_scope.order(:start_date)
+      end
+    end
   end
 
   # GET /activities/1 or /activities/1.json
@@ -59,12 +100,12 @@ class ActivitiesController < ApplicationController
 
   private
     # Use callbacks to share common setup or constraints between actions.
-    def set_activity
-      @activity = Activity.find(params.expect(:id))
-    end
+  def set_activity
+    @activity = Activity.find(params.require(:id))
+  end
 
     # Only allow a list of trusted parameters through.
-    def activity_params
-      params.expect(activity: [ :title, :description, :status, :start_date, :end_date, :kind, :completed_percent, :priority, :urgency, :points ])
-    end
+  def activity_params
+    params.require(:activity).permit(:title, :description, :status, :start_date, :end_date, :kind, :completed_percent, :priority, :urgency, :points, :user_id)
+  end
 end
