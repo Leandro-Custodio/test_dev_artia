@@ -1,66 +1,58 @@
 <% content_for :title, "Activities" %>
 
-<h1>Atividades</h1>
+<h1 class="text-2xl font-bold mb-4">Atividades</h1>
 
-<p style="color: green"><%= notice %></p>
+<% if notice.present? %>
+  <p class="text-green-600 font-semibold mb-4"><%= notice %></p>
+<% end %>
 
-<div style="margin-bottom: 1em; display: flex; justify-content: space-between">
-  <%= link_to "Nova atividade", new_activity_path, class: "btn btn-primary" %>
+<div>
+  <%= link_to "Nova atividade", new_activity_path, class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition" %>
 
-  <div style="display: flex; gap: 1em; align-items: center; margin-bottom: 1em;">
-    <%= form_with url: activities_path, method: :get, local: true do |f| %>
-      <div style="display: flex; align-items: center; gap: 0.5em;">
-        <%= f.label :filter_configuration_id, "Filtro salvo:", style: "margin: 0;" %>
-        <%= f.select :filter_configuration_id,
-            options_from_collection_for_select(current_user.filter_configurations, :id, :name, selected: params[:filter_configuration_id]),
-            prompt: "Selecione", class: "form-select" %>
-        <%= f.submit "Aplicar", class: "btn btn-outline-primary" %>
-      </div>
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6" style="justify-self: right;">
+    <%= form_with url: activities_path, method: :get, local: true, class: "flex items-center gap-2" do |f| %>
+      <%= f.label :filter_configuration_id, "Filtro salvo:", class: "text-gray-700" %>
+      <%= f.select :filter_configuration_id,
+        options_from_collection_for_select(current_user.filter_configurations, :id, :name, selected: params[:filter_configuration_id]),
+        prompt: "Selecione",
+        class: "border border-gray-300 rounded px-3 py-2" %>
+      <%= f.submit "Aplicar", class: "bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-2 rounded" %>
     <% end %>
-  </div>
-  <%= link_to "Limpar Filtros", activities_path, class: "btn btn-secondary", title: "Voltar a tela sem filtros" %>
 
-  <button id="open-filter-modal" class="btn btn-outline-secondary">Filtrar</button>
+    <%= link_to "Limpar Filtros", activities_path, class: "bg-gray-500 text-white px-3 py-2 rounded hover:bg-gray-600" %>
+
+    <button id="open-filter-modal" class="bg-white border border-gray-400 text-gray-800 px-3 py-2 rounded hover:bg-gray-100">Filtrar</button>
+  </div>
 </div>
 
-<div style="overflow-x: auto; border: 1px solid #ccc; border-radius: 6px;">
-  <table style="width: 100%; min-width: 1000px; border-collapse: collapse;">
-    <thead style="background-color: #f2f2f2;">
+<div class="overflow-x-auto border border-gray-300 rounded-lg">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-100">
       <tr>
-        <th style="padding: 8px; text-align: left;">ID</th>
-        <th style="padding: 8px; text-align: left;">Título</th>
-        <th style="padding: 8px; text-align: left;">Descrição</th>
-        <th style="padding: 8px; text-align: left;">Status</th>
-        <th style="padding: 8px; text-align: left;">Início</th>
-        <th style="padding: 8px; text-align: left;">Término</th>
-        <th style="padding: 8px; text-align: left;">Tipo</th>
-        <th style="padding: 8px; text-align: left;">% Completo</th>
-        <th style="padding: 8px; text-align: left;">Prioridade</th>
-        <th style="padding: 8px; text-align: left;">Urgência</th>
-        <th style="padding: 8px; text-align: left;">Pontos</th>
-        <th style="padding: 8px; text-align: left;">Responsável</th>
-        <th style="padding: 8px; text-align: left;">Ações</th>
+        <% ["ID", "Título", "Descrição", "Status", "Início", "Término", "Tipo", "% Completo", "Prioridade", "Urgência", "Pontos", "Responsável", "Ações"].each do |header| %>
+          <th class="px-4 py-2 text-left text-sm font-semibold text-gray-700"><%= header %></th>
+        <% end %>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="bg-white divide-y divide-gray-200">
       <% @activities.each do |activity| %>
-        <tr style="border-top: 1px solid #ddd;">
-          <td style="padding: 8px;"><%= activity.id %></td>
-          <td style="padding: 8px;"><%= activity.title %></td>
-          <td style="padding: 8px;"><%= truncate(activity.description, length: 50) %></td>
-          <td style="padding: 8px;"><%= activity.status ? '✅' : '❌' %></td>
-          <td style="padding: 8px;"><%= activity.start_date %></td>
-          <td style="padding: 8px;"><%= activity.end_date %></td>
-          <td style="padding: 8px;"><%= activity.kind_value %></td>
-          <td style="padding: 8px;"><%= activity.completed_percent %> %</td>
-          <td style="padding: 8px;"><%= activity.priority %></td>
-          <td style="padding: 8px;"><%= activity.urgency_value %></td>
-          <td style="padding: 8px;"><%= activity.points %></td>
-          <td style="padding: 8px;"><%= display_user_name(activity) %></td>
-          <td style="padding: 8px;">
-            <%= link_to 'Show', activity, style: "margin-right: 6px;" %>
-            <%= link_to 'Edit', edit_activity_path(activity), style: "margin-right: 6px;" %>
-            <%= link_to 'Delete', activity, method: :delete, data: { confirm: 'Tem certeza?' }, style: "color: red;" %>
+        <tr>
+          <td class="px-4 py-2"><%= activity.id %></td>
+          <td class="px-4 py-2"><%= activity.title %></td>
+          <td class="px-4 py-2"><%= truncate(activity.description, length: 50) %></td>
+          <td class="px-4 py-2"><%= activity.status ? '✅' : '❌' %></td>
+          <td class="px-4 py-2"><%= activity.start_date %></td>
+          <td class="px-4 py-2"><%= activity.end_date %></td>
+          <td class="px-4 py-2"><%= activity.kind_value %></td>
+          <td class="px-4 py-2"><%= activity.completed_percent %> %</td>
+          <td class="px-4 py-2"><%= activity.priority %></td>
+          <td class="px-4 py-2"><%= activity.urgency_value %></td>
+          <td class="px-4 py-2"><%= activity.points %></td>
+          <td class="px-4 py-2"><%= display_user_name(activity) %></td>
+          <td class="px-4 py-2 space-x-2">
+            <%= link_to 'Show', activity, class: "text-blue-600 hover:underline" %>
+            <%= link_to 'Edit', edit_activity_path(activity), class: "text-yellow-600 hover:underline" %>
+            <%= link_to 'Delete', activity, method: :delete, data: { confirm: 'Tem certeza?' }, class: "text-red-600 hover:underline" %>
           </td>
         </tr>
       <% end %>
@@ -68,17 +60,16 @@
   </table>
 </div>
 
-<div id="filter-modal" style="display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
-  <div style="background-color: #fff; margin: 10% auto; padding: 20px; border-radius: 8px; width: 80%; max-width: 800px;">
-    <h2>Filtros Avançados</h2>
+<div id="filter-modal" class="fixed inset-0 hidden justify-center z-50 p-6" style="overflow: auto; position: absolute;">
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-4xl p-6 space-y-6 justify-self-center" style="justify-self: center;">
+    <h2 class="text-xl font-semibold text-gray-800">Filtros Avançados</h2>
 
     <%= form_with url: activities_path, method: :get, local: true do |f| %>
       <input type="hidden" name="filter_mode" value="advanced">
 
-      <!-- Operação entre grupos -->
-      <div style="margin-bottom: 1em;">
-        <label>Operação entre grupos:</label>
-        <select name="group_operator" class="form-select" style="width: auto; display: inline-block;">
+      <div>
+        <label class="block text-gray-700 font-medium mb-2">Operação entre grupos:</label>
+        <select name="group_operator" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
           <option value="and" <%= 'selected' if params[:group_operator] == 'and' %>>E (AND)</option>
           <option value="or" <%= 'selected' if params[:group_operator] == 'or' %>>OU (OR)</option>
         </select>
@@ -88,13 +79,12 @@
         <% group = params.dig(:filters, group_index.to_s) || {} %>
         <% group_operator = group[:operator] %>
 
-        <fieldset style="margin-bottom: 1.5em; border: 1px solid #ccc; padding: 1em;">
-          <legend>Grupo <%= group_index + 1 %></legend>
+        <fieldset class="border border-gray-200 rounded-lg p-4 space-y-4">
+          <legend class="text-gray-700 font-semibold mb-2">Grupo <%= group_index + 1 %></legend>
 
-          <!-- Operação entre filtros do grupo -->
-          <div style="margin-bottom: 1em;">
-            <label>Operação entre filtros do grupo:</label>
-            <select name="filters[<%= group_index %>][operator]" class="form-select" style="width: auto; display: inline-block;">
+          <div>
+            <label class="block mb-1 font-medium text-gray-700">Operação entre filtros do grupo:</label>
+            <select name="filters[<%= group_index %>][operator]" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
               <option value="and" <%= 'selected' if group_operator == 'and' %>>E (AND)</option>
               <option value="or" <%= 'selected' if group_operator == 'or' %>>OU (OR)</option>
             </select>
@@ -105,32 +95,31 @@
             <% field = condition[:field] %>
             <% value = condition[:value] %>
 
-            <div class="row mb-2">
-              <div class="col">
-                <select name="filters[<%= group_index %>][conditions][<%= filter_index %>][field]" class="form-select">
-                  <option value="">Selecione campo</option>
-                  <% @available_filter_fields.each do |field_key, label| %>
-                    <option value="<%= field_key %>" <%= 'selected' if field == field_key %>><%= label %></option>
-                  <% end %>
-                </select>
-              </div>
-              <div class="col">
-                <input name="filters[<%= group_index %>][conditions][<%= filter_index %>][value]" class="form-control" placeholder="Valor" value="<%= value %>" />
-              </div>
+            <div class="flex gap-4 items-center">
+              <select name="filters[<%= group_index %>][conditions][<%= filter_index %>][field]" class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <option value="">Selecione campo</option>
+                <% @available_filter_fields.each do |field_key, label| %>
+                  <option value="<%= field_key %>" <%= 'selected' if field == field_key %>><%= label %></option>
+                <% end %>
+              </select>
+              <input name="filters[<%= group_index %>][conditions][<%= filter_index %>][value]" 
+                     class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" 
+                     placeholder="Valor" value="<%= value %>" />
             </div>
           <% end %>
         </fieldset>
       <% end %>
 
-      <div style="margin-bottom: 1em;">
-        <label for="filter_name">Nome do filtro (opcional para salvar)</label>
-        <input type="text" name="filter_name" id="filter_name" class="form-control" placeholder="Digite um nome para salvar este filtro" value="">
+      <div>
+        <label for="filter_name" class="block text-gray-700 font-medium mb-1">Nome do filtro (opcional para salvar)</label>
+        <input type="text" name="filter_name" id="filter_name" placeholder="Digite um nome para salvar este filtro" 
+               class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" value="">
       </div>
 
-      <div style="display: flex; justify-content: flex-end; gap: 1em;">
-        <button type="button" id="close-filter-modal" class="btn btn-secondary">Cancelar</button>
-        <button type="submit" name="commit" value="apply" class="btn btn-primary">Aplicar Filtros</button>
-        <button type="submit" name="commit" value="save" class="btn btn-success">Salvar Filtro Atual</button>
+      <div class="flex justify-end gap-4">
+        <button type="button" id="close-filter-modal" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-4 py-2 rounded">Cancelar</button>
+        <button type="submit" name="commit" value="apply" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded">Aplicar Filtros</button>
+        <button type="submit" name="commit" value="save" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded">Salvar Filtro Atual</button>
       </div>
     <% end %>
   </div>

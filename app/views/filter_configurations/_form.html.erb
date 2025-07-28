@@ -1,8 +1,8 @@
 <%= form_with(model: filter_configuration, local: true) do |f| %>
   <% if filter_configuration.errors.any? %>
-    <div class="alert alert-danger">
-      <h4><%= pluralize(filter_configuration.errors.count, "erro") %> proibiu este filtro de ser salvo:</h4>
-      <ul>
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+      <strong class="font-bold"><%= pluralize(filter_configuration.errors.count, "erro") %> proibiu este filtro de ser salvo:</strong>
+      <ul class="mt-2 list-disc list-inside">
         <% filter_configuration.errors.full_messages.each do |msg| %>
           <li><%= msg %></li>
         <% end %>
@@ -10,39 +10,39 @@
     </div>
   <% end %>
 
-  <div class="mb-3">
-    <%= f.label :name, "Nome do filtro" %>
-    <%= f.text_field :name, class: "form-control" %>
+  <div class="mb-6">
+    <%= f.label :name, "Nome do filtro", class: "block text-gray-700 font-semibold mb-2" %>
+    <%= f.text_field :name, class: "w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
   </div>
 
   <%= f.fields_for :filter_groups do |group_fields| %>
-    <fieldset style="border: 1px solid #ccc; margin-bottom: 1em; padding: 1em;">
-      <legend>Grupo <%= group_fields.object.position %></legend>
+    <fieldset class="border border-gray-300 rounded-lg p-4 mb-6">
+      <legend class="text-gray-800 font-semibold mb-4">Grupo <%= group_fields.object.position %></legend>
 
-      <div class="mb-3">
-        <%= group_fields.label :operator, "Operação entre filtros do grupo" %>
-        <%= group_fields.select :operator, [['E (AND)', 'and'], ['OU (OR)', 'or']], {}, class: "form-select" %>
+      <div class="mb-4">
+        <%= group_fields.label :operator, "Operação entre filtros do grupo", class: "block text-gray-700 mb-1" %>
+        <%= group_fields.select :operator, [['E (AND)', 'and'], ['OU (OR)', 'or']], {}, class: "w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
       </div>
 
       <%= group_fields.fields_for :filter_conditions do |condition_fields| %>
-        <div style="margin-bottom: 0.5em;">
-          <div class="row">
-            <div class="col-4">
-              <%= condition_fields.label :field, "Campo" %>
-              <%= condition_fields.select :field, options_for_select(@available_filter_fields.map { |k, v| [v, k] }, condition_fields.object.field), { include_blank: "Selecione campo" }, class: "form-select" %>
+        <div class="mb-4">
+          <div class="grid grid-cols-12 gap-4 items-end">
+            <div class="col-span-5">
+              <%= condition_fields.label :field, "Campo", class: "block text-gray-700 mb-1" %>
+              <%= condition_fields.select :field, options_for_select(@available_filter_fields.map { |k, v| [v, k] }, condition_fields.object.field), { include_blank: "Selecione campo" }, class: "w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
             </div>
-            <div class="col-3">
-              <%= condition_fields.label :operator, "Operador" %>
-              <%= condition_fields.select :operator, [['=', '='], ['!=', '!='], ['>', '>'], ['<', '<'], ['>=', '>='], ['<=', '<=']], {}, class: "form-select" %>
+            <div class="col-span-3">
+              <%= condition_fields.label :operator, "Operador", class: "block text-gray-700 mb-1" %>
+              <%= condition_fields.select :operator, [['=', '='], ['!=', '!='], ['>', '>'], ['<', '<'], ['>=', '>='], ['<=', '<=']], {}, class: "w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
             </div>
-            <div class="col-4">
-              <%= condition_fields.label :value, "Valor" %>
-              <%= condition_fields.text_field :value, class: "form-control" %>
+            <div class="col-span-3">
+              <%= condition_fields.label :value, "Valor", class: "block text-gray-700 mb-1" %>
+              <%= condition_fields.text_field :value, class: "w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
             </div>
-            <div class="col-1 d-flex align-items-end">
+            <div class="col-span-1 flex items-center">
               <% unless condition_fields.object.new_record? %>
-                <%= condition_fields.check_box :_destroy %>
-                <%= condition_fields.label :_destroy, "Excluir" %>
+                <%= condition_fields.check_box :_destroy, class: "mr-2" %>
+                <%= condition_fields.label :_destroy, "Excluir", class: "text-sm text-red-600 cursor-pointer" %>
               <% end %>
             </div>
           </div>
@@ -51,7 +51,7 @@
     </fieldset>
   <% end %>
 
-  <div class="d-flex justify-content-end gap-2">
-    <%= f.submit "Salvar Filtro", class: "btn btn-primary" %>
+  <div class="flex justify-end">
+    <%= f.submit "Salvar Filtro", class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded transition" %>
   </div>
 <% end %>

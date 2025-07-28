@@ -36,6 +36,11 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
       nodejs yarn && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
+RUN apt-get update -qq && \
+    apt-get install -y build-essential libyaml-dev
+
+RUN apt-get update && apt-get install -y watchman
+
 # Install application gems
 COPY Gemfile Gemfile.lock ./
 RUN bundle install && \
