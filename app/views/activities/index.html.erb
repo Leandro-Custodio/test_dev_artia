@@ -7,6 +7,19 @@
 <div style="margin-bottom: 1em; display: flex; justify-content: space-between">
   <%= link_to "Nova atividade", new_activity_path, class: "btn btn-primary" %>
 
+  <div style="display: flex; gap: 1em; align-items: center; margin-bottom: 1em;">
+    <%= form_with url: activities_path, method: :get, local: true do |f| %>
+      <div style="display: flex; align-items: center; gap: 0.5em;">
+        <%= f.label :filter_configuration_id, "Filtro salvo:", style: "margin: 0;" %>
+        <%= f.select :filter_configuration_id,
+            options_from_collection_for_select(current_user.filter_configurations, :id, :name, selected: params[:filter_configuration_id]),
+            prompt: "Selecione", class: "form-select" %>
+        <%= f.submit "Aplicar", class: "btn btn-outline-primary" %>
+      </div>
+    <% end %>
+  </div>
+  <%= link_to "Limpar Filtros", activities_path, class: "btn btn-secondary", title: "Voltar a tela sem filtros" %>
+
   <button id="open-filter-modal" class="btn btn-outline-secondary">Filtrar</button>
 </div>
 
@@ -43,7 +56,7 @@
           <td style="padding: 8px;"><%= activity.priority %></td>
           <td style="padding: 8px;"><%= activity.urgency_value %></td>
           <td style="padding: 8px;"><%= activity.points %></td>
-          <td style="padding: 8px;"><%= activity.user_id %></td>
+          <td style="padding: 8px;"><%= display_user_name(activity) %></td>
           <td style="padding: 8px;">
             <%= link_to 'Show', activity, style: "margin-right: 6px;" %>
             <%= link_to 'Edit', edit_activity_path(activity), style: "margin-right: 6px;" %>
@@ -57,10 +70,9 @@
 
 <div id="filter-modal" style="display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
   <div style="background-color: #fff; margin: 10% auto; padding: 20px; border-radius: 8px; width: 80%; max-width: 800px;">
-
     <h2>Filtros Avançados</h2>
 
-    <form action="<%= activities_path %>" method="get">
+    <%= form_with url: activities_path, method: :get, local: true do |f| %>
       <input type="hidden" name="filter_mode" value="advanced">
 
       <!-- Operação entre grupos -->
@@ -97,11 +109,9 @@
               <div class="col">
                 <select name="filters[<%= group_index %>][conditions][<%= filter_index %>][field]" class="form-select">
                   <option value="">Selecione campo</option>
-                  <option value="title" <%= 'selected' if field == 'title' %>>Título</option>
-                  <option value="kind" <%= 'selected' if field == 'kind' %>>Tipo</option>
-                  <option value="urgency" <%= 'selected' if field == 'urgency' %>>Urgência</option>
-                  <option value="user_id" <%= 'selected' if field == 'user_id' %>>Responsável</option>
-                  <option value="priority" <%= 'selected' if field == 'priority' %>>Prioridade</option>
+                  <% @available_filter_fields.each do |field_key, label| %>
+                    <option value="<%= field_key %>" <%= 'selected' if field == field_key %>><%= label %></option>
+                  <% end %>
                 </select>
               </div>
               <div class="col">
@@ -112,12 +122,17 @@
         </fieldset>
       <% end %>
 
+      <div style="margin-bottom: 1em;">
+        <label for="filter_name">Nome do filtro (opcional para salvar)</label>
+        <input type="text" name="filter_name" id="filter_name" class="form-control" placeholder="Digite um nome para salvar este filtro" value="">
+      </div>
+
       <div style="display: flex; justify-content: flex-end; gap: 1em;">
         <button type="button" id="close-filter-modal" class="btn btn-secondary">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+        <button type="submit" name="commit" value="apply" class="btn btn-primary">Aplicar Filtros</button>
+        <button type="submit" name="commit" value="save" class="btn btn-success">Salvar Filtro Atual</button>
       </div>
-    </form>
-
+    <% end %>
   </div>
 </div>
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_16_133112) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_28_002939) do
   create_table "activities", force: :cascade do |t|
     t.string "title"
     t.string "description"
@@ -27,6 +27,35 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_16_133112) do
     t.integer "user_id"
   end
 
+  create_table "filter_conditions", force: :cascade do |t|
+    t.integer "filter_group_id", null: false
+    t.string "field"
+    t.string "operator"
+    t.string "value"
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["filter_group_id"], name: "index_filter_conditions_on_filter_group_id"
+  end
+
+  create_table "filter_configurations", force: :cascade do |t|
+    t.string "name"
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "group_operator"
+    t.index ["user_id"], name: "index_filter_configurations_on_user_id"
+  end
+
+  create_table "filter_groups", force: :cascade do |t|
+    t.integer "filter_configuration_id", null: false
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "operator"
+    t.index ["filter_configuration_id"], name: "index_filter_groups_on_filter_configuration_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -34,4 +63,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_16_133112) do
   end
 
   add_foreign_key "activities", "users"
+  add_foreign_key "filter_conditions", "filter_groups"
+  add_foreign_key "filter_configurations", "users"
+  add_foreign_key "filter_groups", "filter_configurations"
 end

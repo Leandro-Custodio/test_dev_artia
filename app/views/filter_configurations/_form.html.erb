@@ -1,0 +1,57 @@
+<%= form_with(model: filter_configuration, local: true) do |f| %>
+  <% if filter_configuration.errors.any? %>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(filter_configuration.errors.count, "erro") %> proibiu este filtro de ser salvo:</h4>
+      <ul>
+        <% filter_configuration.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= f.label :name, "Nome do filtro" %>
+    <%= f.text_field :name, class: "form-control" %>
+  </div>
+
+  <%= f.fields_for :filter_groups do |group_fields| %>
+    <fieldset style="border: 1px solid #ccc; margin-bottom: 1em; padding: 1em;">
+      <legend>Grupo <%= group_fields.object.position %></legend>
+
+      <div class="mb-3">
+        <%= group_fields.label :operator, "Operação entre filtros do grupo" %>
+        <%= group_fields.select :operator, [['E (AND)', 'and'], ['OU (OR)', 'or']], {}, class: "form-select" %>
+      </div>
+
+      <%= group_fields.fields_for :filter_conditions do |condition_fields| %>
+        <div style="margin-bottom: 0.5em;">
+          <div class="row">
+            <div class="col-4">
+              <%= condition_fields.label :field, "Campo" %>
+              <%= condition_fields.select :field, options_for_select(@available_filter_fields.map { |k, v| [v, k] }, condition_fields.object.field), { include_blank: "Selecione campo" }, class: "form-select" %>
+            </div>
+            <div class="col-3">
+              <%= condition_fields.label :operator, "Operador" %>
+              <%= condition_fields.select :operator, [['=', '='], ['!=', '!='], ['>', '>'], ['<', '<'], ['>=', '>='], ['<=', '<=']], {}, class: "form-select" %>
+            </div>
+            <div class="col-4">
+              <%= condition_fields.label :value, "Valor" %>
+              <%= condition_fields.text_field :value, class: "form-control" %>
+            </div>
+            <div class="col-1 d-flex align-items-end">
+              <% unless condition_fields.object.new_record? %>
+                <%= condition_fields.check_box :_destroy %>
+                <%= condition_fields.label :_destroy, "Excluir" %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </fieldset>
+  <% end %>
+
+  <div class="d-flex justify-content-end gap-2">
+    <%= f.submit "Salvar Filtro", class: "btn btn-primary" %>
+  </div>
+<% end %>
